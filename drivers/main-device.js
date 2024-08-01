@@ -219,6 +219,35 @@ class mainDevice extends rootDevice {
         }
     }
 
+    async onCapability_WINDOWCOVERINGS_STOP() {
+        try {
+            const deviceObject = await this.getData();
+            const settings = await this.getSettings();
+            const ip = settings.ip;
+
+            this.homey.app.log(`[Device] ${this.getName()} - onCapability_WINDOWCOVERINGS_STOP`);
+
+            const request = {
+                shade: {
+                    motion: 'stop',
+                }
+            };
+
+            this.homey.app.log(`[Device] ${this.getName()} - onCapability_WINDOWCOVERINGS_STOP request: `, request);
+
+            const shadeResponse = await setShade(ip, this.homey.app.apiClient, request, deviceObject.id);
+
+            this.homey.app.log(`[Device] ${this.getName()} - onCapability_WINDOWCOVERINGS_TILT_SET shadeResponse: `, shadeResponse);
+
+            this.setCapabilityValues(false, null, { ...shadeResponse, positions: shadeResponse.positions });
+
+            return Promise.resolve(true);
+        } catch (e) {
+            this.homey.app.error(e);
+            return Promise.reject(e);
+        }
+    }
+
     async shadeUpdate() {
         try {
             this.homey.app.log(`[Device] ${this.getName()} - init shadeUpdate`);
